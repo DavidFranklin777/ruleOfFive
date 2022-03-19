@@ -16,6 +16,7 @@ public:
     // obj1,obj2 are the objects of ruleOfFive
     ruleOfFive& operator=(const ruleOfFive& obj)
     {
+        delete buffer;
         if(this != &obj)
         {
             var = obj.var;
@@ -28,6 +29,7 @@ public:
     // This helps us perform obj1(obj2) effectively
     ruleOfFive(const ruleOfFive& obj)
     {
+        delete buffer;
         var = obj.var;
         copy(obj.buffer, obj.buffer+sizeof(obj.buffer), buffer);
     }
@@ -35,14 +37,18 @@ public:
     // Default constructor
     ruleOfFive()
         : var(0)
-        , buffer(nullptr)
+        , buffer(new int)
     {
+        cout << "Constructor " << endl;
     }
 
     // Move assignment operator overloading
     // This helps us perform obj1 = move(obj2)
     ruleOfFive& operator=(ruleOfFive&& obj)
     {
+        // If we do not delete buffer here, it will be overwritten by a new memory address
+        // That causes the previous buffer to be incapable of accessing, thus making it impossible to delete
+        delete buffer;
         swap(var, obj.var);
         swap(buffer, obj.buffer);
         obj.buffer = NULL;
@@ -54,6 +60,9 @@ public:
     // This helps us perform obj1(move(obj2))
     ruleOfFive(ruleOfFive &&obj)
     {
+        // If we do not delete buffer here, it will be overwritten by a new memory address
+        // That causes the previous buffer to be incapable of accessing, thus making it impossible to delete
+        delete buffer;
         swap(var, obj.var);
         swap(buffer, obj.buffer);
         obj.buffer = NULL;
@@ -66,6 +75,7 @@ public:
     {
         delete buffer;
         buffer = NULL;
+        cout << "Destructor " << endl;
     }
 
 };
@@ -75,7 +85,6 @@ int main()
     // Testing
     ruleOfFive obj1, obj2;
     obj1.var = 1;
-    obj1.buffer = new int;
     obj1.buffer[0] = 55;
     cout << "initial " << obj1.buffer[0] << endl;
     obj2 = move(obj1);
